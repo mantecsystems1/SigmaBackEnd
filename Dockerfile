@@ -9,7 +9,10 @@ COPY ["sigmaBack.sln", "."]
 COPY ["sigmaBack.API/sigmaBack.API.csproj", "sigmaBack.API/"]
 COPY ["sigmaBack.Application/sigmaBack.Application.csproj", "sigmaBack.Application/"]
 COPY ["sigmaBack.Domain/sigmaBack.Domain.csproj", "sigmaBack.Domain/"]
-COPY ["sigmaback.Infra.Data/sigmaback.Infra.Data.csproj", "sigmaback.Infra.Data/"]
+COPY ["sigmaBack.Domain.Test/sigmaBack.Domain.Test.csproj", "sigmaBack.Domain.Test/"]
+COPY ["sigmaBack.Infra.Data/sigmaBack.Infra.Data.csproj", "sigmaBack.Infra.Data/"]
+COPY ["sigmaBack.Infra.IoC/sigmaBack.Infra.IoC.csproj", "sigmaBack.Infra.IoC/"]
+
 
 RUN dotnet restore
 
