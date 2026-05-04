@@ -10,7 +10,7 @@ COPY ["sigmaBack.API/sigmaBack.API.csproj", "sigmaBack.API/"]
 COPY ["sigmaBack.Application/sigmaBack.Application.csproj", "sigmaBack.Application/"]
 COPY ["sigmaBack.Domain/sigmaBack.Domain.csproj", "sigmaBack.Domain/"]
 COPY ["sigmaBack.Domain.Test/sigmaBack.Domain.Test.csproj", "sigmaBack.Domain.Test/"]
-COPY ["sigmaback.Infra.Data/sigmaBack.Infra.Data.csproj", "sigmaback.Infra.Data/"]
+COPY ["sigmaback.Infra.Data/sigmaback.Infra.Data.csproj", "sigmaback.Infra.Data/"]
 COPY ["sigmaBack.Infra.IoC/sigmaBack.Infra.IoC.csproj", "sigmaBack.Infra.IoC/"]
 
 
