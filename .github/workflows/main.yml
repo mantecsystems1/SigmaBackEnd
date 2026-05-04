@@ -23,3 +23,7 @@ jobs:
             --image mantecsystems/sigma-api:latest \
             sigma_sigma-api || \
           docker stack deploy -c sigma-api.yml sigma
+      - name: Debug path
+        run: |
+          pwd
+          ls -la
