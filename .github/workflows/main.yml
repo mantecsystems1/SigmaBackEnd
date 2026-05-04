@@ -18,28 +18,8 @@ jobs:
           docker build -t mantecsystems/sigma-api:latest .
 
       - name: Update service in Swarm
-        run: ls -la
+        run: |
           docker service update \
             --image mantecsystems/sigma-api:latest \
             sigma_sigma-api || \
-          docker stack deploy -c sigma-api.yml sigma            DEPLOY_PATH="/mnt/volumes/apis/sigma_back"
-            DOCKERFILE_PATH="$DEPLOY_PATH/Dockerfile"
-            
-            # Lista arquivos no servidor para verificar a transferência
-            ls -la $DEPLOY_PATH
-            
-            # Remove containers antigos, se existirem
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-            
-            # Remove imagens antigas, se existirem
-            docker rmi $IMAGE_NAME || true
-            
-            # Constrói a nova imagem
-            docker build -t $IMAGE_NAME -f $DOCKERFILE_PATH $DEPLOY_PATH
-            
-            # Roda o novo container e mapeia para o diretório desejado
-            docker run -d --name $CONTAINER_NAME -p 5001:5001 -v $DEPLOY_PATH:/app $IMAGE_NAME
-          
-          # Remove o arquivo temporário da chave privada
-          rm -f private_key
+          docker stack deploy -c sigma-api.yml sigma
