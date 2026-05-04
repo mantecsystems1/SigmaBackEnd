@@ -17,13 +17,14 @@ jobs:
         run: |
           docker build -t mantecsystems/sigma-api:latest .
 
-      - name: Update service in Swarm
+      - name: Push Docker image
+        run: |
+          docker push mantecsystems/sigma-api:latest
+
+      - name: Force update Swarm service
         run: |
           docker service update \
+            --force \
+            --with-registry-auth \
             --image mantecsystems/sigma-api:latest \
-            sigma_sigma-api || \
-          docker stack deploy -c sigma-api.yml sigma
-      - name: Debug path
-        run: |
-          pwd
-          ls -la
+            sigma_sigma-api
