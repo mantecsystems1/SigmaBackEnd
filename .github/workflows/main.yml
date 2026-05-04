@@ -1,4 +1,4 @@
-name: CI/CD for sigmaBackEnd
+name: CI/CD Sigma API
 
 on:
   push:
@@ -6,77 +6,20 @@ on:
       - desenvolvimentoBackEnd
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: self-hosted
 
     steps:
-      # Checkout do repositório
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      # Configuração do ambiente para o .NET SDK
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0'
+      - name: Build Docker image
+        run: |
+          docker build -t mantecsystems/sigma-api:latest .
 
-      # Restaura dependências e compila o projeto
-      - name: Restore and Build
+      - name: Update service in Swarm
         run: |
-          dotnet restore sigmaBack.sln
-          dotnet build sigmaBack.sln --configuration Release
-      # Lista arquivos no diretório atual
-      - name: List files
-        run: ls -la
-
-      # Cria a imagem Docker do projeto
-      - name: Build Docker Image
-        run: |
-          docker build -t sigma-backend:latest -f Dockerfile .
-      # Faz login no servidor para enviar e implantar a imagem Docker
-      - name: Deploy Docker Image to Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-        run: |
-          # Salva a chave privada em um arquivo temporário
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > private_key
-          chmod 600 private_key
-          
-          # Define variáveis
-          CONTAINER_NAME="sigma-backend"
-          IMAGE_NAME="sigma-backend:latest"
-          DEPLOY_PATH="/mnt/volumes/apis/sigma_back"
-          DOCKERFILE_PATH="$DEPLOY_PATH/Dockerfile"
-          
-          # Salva a imagem Docker e envia para o servidor
-          docker save sigma-backend:latest | ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP 'docker load'
-          scp -o StrictHostKeyChecking=no -i private_key ./Dockerfile $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/
-          
-          # Conecta ao servidor e realiza o deploy
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP << EOF
-            # Define variáveis no servidor
-            CONTAINER_NAME="sigma-backend"
-            IMAGE_NAME="sigma-backend:latest"
-            DEPLOY_PATH="/mnt/volumes/apis/sigma_back"
-            DOCKERFILE_PATH="$DEPLOY_PATH/Dockerfile"
-            
-            # Lista arquivos no servidor para verificar a transferência do Dockerfile
-            ls -la $DEPLOY_PATH
-            
-            # Remove containers antigos, se existirem
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-            
-            # Remove imagens antigas, se existirem
-            docker rmi $IMAGE_NAME || true
-            
-            # Constrói a nova imagem
-            docker build -t $IMAGE_NAME -f $DOCKERFILE_PATH $DEPLOY_PATH
-            
-            # Roda o novo container e mapeia para o diretório desejado
-            docker run -d --name $CONTAINER_NAME -p 5001:5001 -v $DEPLOY_PATH:/app $IMAGE_NAME
-          
-          # Remove o arquivo temporário da chave privada
-          rm -f private_key
+          docker service update \
+            --image mantecsystems/sigma-api:latest \
+            sigma_sigma-api || \
+          docker stack deploy -c sigma-api.yml sigma
